@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>问题分类管理页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	var postCategorys = function() {
+		var name = $("#category_id").val();
+		console.log(name);
+		$.ajax({
+			url : "/categorys",
+			type : "POST",
+			data : {
+				"name" : name
+			},
+			dataType : "JSON",
+			async : false,
+			success : function(result) {
+				window.location.href = result.data;
+			},
+			error : function(err) {
+				alert(err.responseJSON.message);
+			}
+		});
+	}
+
+	var put = function(id) {
+		var name=$("#name_id_"+id).val();
+		console.log(name);
+		var result = confirm("确定修改？");
+		if (result == true) {
+			$.ajax({
+				url : "/categorys",
+				type : "POST",
+				data : {
+					"id":id,
+					"name" : name,
+					"_method" : "put"
+				},
+				dataType : "JSON",
+				async : false,
+				success : function(result) {
+					window.location.href = result.data;
+				},
+				error : function(err) {
+					alert(err.responseJSON.message);
+				}
+			});
+		}
+	}
+
+	var remove = function(id) {
+		var result = confirm("确定删除？");
+		if (result == true) {
+			window.location.href = "/categorys/delete/" + id;
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<!-- 分类添加栏 -->
+	<div class="input-group mb-3">
+		<input type="text" class="form-control" placeholder="输入要添加的分类词"
+			id="category_id">
+		<div class="input-group-append">
+			<button class="btn btn-primary" type="button"
+				onclick="postCategorys()">添加分类</button>
+		</div>
+	</div>
+	<!-- 分类显示栏 -->
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">分类名</th>
+				<th scope="col">修改</th>
+				<th scope="col">删除</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="category:${categoryList}">
+				<td><input type="text" th:id="'name_id_'+${category.id}"
+					th:value="${category.name}" /></td>
+				<td>
+					<button type="button" class="btn btn-primary"
+						th:onclick="'put('+${category.id}+')'">修改</button>
+				</td>
+				<td><button type="button" class="btn btn-danger"
+						th:onclick="'remove('+${category.id}+')'">删除</button></td>
+			</tr>
+		</tbody>
+	</table>
+</body>

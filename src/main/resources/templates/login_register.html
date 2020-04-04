@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>登录注册页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<!-- 引入自定义javascript -->
+<script type="text/javascript">
+	var startFunction = function() {
+		loginShift();
+	}
+	//切换登录
+	var loginShift = function() {
+		/* 让所有元素的active状态失效 */
+		$("#loginLi").removeClass("active");
+		$("#registerLi").removeClass("active");
+		/* 让某个元素的active状态生效 */
+		$("#loginLi").addClass("active");
+		/* 让某些元素隐藏，某些元素取消隐藏 */
+		$("#login").show();
+		$("#register").hide();
+	}
+	//切换注册
+	var registerShift = function() {
+		/* 让所有元素的active状态失效 */
+		$("#loginLi").removeClass("active");
+		$("#registerLi").removeClass("active");
+		/* 让某个元素的active状态生效 */
+		$("#registerLi").addClass("active");
+		/* 让某些元素隐藏，某些元素取消隐藏 */
+		$("#login").hide();
+		$("#register").show();
+	}
+	//进行登录
+	var login = function() {
+		var username = $("#login_username").val().trim();
+		var password = $("#login_password").val().trim();
+		//判断是否均非空
+		if (username.length == 0 || password.length == 0) {
+			alert("账号与密码均不可为空");
+			return;
+		}
+		//进行登录
+		$.ajax({
+			url : "/authentication/authenticate",
+			type : "POST",
+			data : {
+				"username" : username,
+				"password" : password
+			},
+			dataType : "JSON",
+			async : false,
+			success : function(result) {
+				window.location.href = result.data;
+			},
+			error : function(err) {
+				alert(err.responseJSON.message);
+			}
+		});
+	}
+	//进行注册
+	var register = function() {
+		//获取账号密码并去除两侧空格
+		var username = $("#register_username").val().trim();
+		var password = $("#register_password").val().trim();
+		//进行注册
+		$.ajax({
+			url : "/users",
+			type : "POST",
+			data : {
+				"username" : username,
+				"password" : password
+			},
+			dataType : "JSON",
+			async : false,
+			success : function(result) {
+				window.location.href = result.data;
+			},
+			error : function(err) {
+				alert(err.responseJSON.message);
+			}
+		});
+	}
+	//修改密码
+	var password_change = function() {
+		window.location.href = "/password_change";
+	}
+</script>
+</head>
+<body th:onload="startFunction()">
+	<!-- 标题 -->
+	<h2 class="text-center">
+		<a href="/">你问我答网</a>
+	</h2>
+	<!-- 控制按钮 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			<div class="btn-group d-flex justify-content-center" role="group"
+				aria-label="Basic example">
+				<button type="button" class="btn btn-secondary"
+					onclick="loginShift()">登录</button>
+				<button type="button" class="btn btn-secondary"
+					onclick="registerShift()">注册</button>
+				<button type="button" class="btn btn-secondary"
+					onclick="password_change()">修改密码</button>
+			</div>
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<!-- 登录 -->
+	<div id="login">
+		<form action="/authentication/authenticate" method="post">
+			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+					<input type="text" class="form-control" id="login_username"
+						placeholder="账号">
+				</div>
+				<div class="col-md-4"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+					<input type="password" class="form-control" id="login_password"
+						placeholder="密码">
+				</div>
+				<div class="col-md-4"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4 text-center">
+					<button type="button" class="btn btn-info" onclick="login()">登录</button>
+				</div>
+				<div class="col-md-4"></div>
+			</div>
+		</form>
+	</div>
+	<!-- 注册 -->
+	<div id="register">
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<input type="text" class="form-control" id="register_username"
+					placeholder="账号 6-15位 由数字与大小写字母组成">
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<input type="password" class="form-control" id="register_password"
+					placeholder="密码 6-15位 由数字与大小写字母组成">
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4 text-center">
+				<button type="button" class="btn btn-info" onclick="register()">注册</button>
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+	</div>
+</body>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<div class="row">
+		<!-- 左侧空白 -->
+		<div class="col-lg-1"></div>
+		<!-- 主体 -->
+		<div class="col-lg-10">
+			<!-- 问题显示区 -->
+			<ul class="list-group">
+				<li class="list-group-item" th:each="question:${questionList}">
+					<h3>
+						<a class="font-weight-bolder text-dark"
+							th:href="'/questions/'+${question.id}"
+							th:text="${question.title}"> </a>
+					</h3>
+					<div class="text-muted" th:text="${question.content}"></div>
+				</li>
+			</ul>
+			<!-- 分页显示区 -->
+			<nav>
+				<ul class="pagination">
+					<li class="page-item" th:each="page:${pageList}"><a
+						class="page-link" th:text="${page}"
+						th:href="'/search?data='+${data}+'&page='+${page}"></a></li>
+				</ul>
+			</nav>
+		</div>
+		<!-- 右侧空白 -->
+		<div class="col-lg-1"></div>
+	</div>
+</body>

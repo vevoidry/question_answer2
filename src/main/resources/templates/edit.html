@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户信息修改页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<div class="row">
+		<!-- 左侧空白 -->
+		<div class="col-lg-4"></div>
+		<!-- 显示区 -->
+		<div class="col-lg-4">
+			<!-- 修改头像信息 -->
+			<div>
+				头像： <img th:src="'/image/'+${user.image}" alt="Image"
+					class="img-rounded" width="200px" height="200px">
+				
+				<form th:action="'/users/'+${user.id}+'/image'" method="post"
+					enctype="multipart/form-data">
+					<input type="file" name="filename" class="form-control" />
+					<button type="submit" class="btn btn-outline-secondary">保存头像</button>
+				</form>
+			</div>
+			<!-- 修改非头像信息 -->
+			<div>
+				<form th:action="'/users/'+${user.id}" method="post">
+					<input type="hidden" name="_method" value="put" /> <input
+						type="text" name="id" th:value="${user.id}" hidden /> <input
+						type="text" name="username" th:value="${user.username}" hidden />
+					<div class="panel panel-default">
+						<div class="panel-body">
+							昵称：<input type="text" name="nickname" th:value="${user.nickname}" />（昵称长度不可超过12个字符）
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div th:if="${user.gender}=='男'">
+								性别：男<input type="radio" name="gender" value="男"
+									checked="checked" />女<input type="radio" name="gender"
+									value="女" />
+							</div>
+							<div th:if="${user.gender}=='女'">
+								性别：男<input type="radio" name="gender" value="男" />女<input
+									type="radio" name="gender" value="女" checked="checked" />
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div>
+								简介<input type="text" name="profile" th:value="${user.profile}" />
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div>
+								<button type="submit" class="btn btn-outline-secondary">保存</button>
+								&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="'/users/'+${session.user.id}"><button type="button"
+										class="btn btn-outline-secondary">取消</button></a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<!-- 右侧空白 -->
+		<div class="col-lg-4"></div>
+	</div>
+</body>

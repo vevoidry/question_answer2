@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>主页</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<div class="row">
+		<!-- 左侧空白 -->
+		<div class="col-lg-1"></div>
+		<!-- 主体 -->
+		<div class="row col-lg-10">
+			<!-- 左边 -->
+			<div class="col-lg-9">
+				<!-- 问题分类 -->
+				<h3 class="text-center font-weight-bolder">
+					<button class="btn btn-primary" type="button"
+						data-toggle="collapse" data-target="#collapseExample"
+						aria-expanded="false" aria-controls="collapseExample">问题分类</button>
+				</h3>
+				<div class="collapse" id="collapseExample">
+					<div class="card card-body">
+						<div class="row">
+							<div class="col" th:each="category:${categoryList}">
+								<a th:text="${category.name}"
+									th:href="'/categorys/'+${category.id}"></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 问题显示区 -->
+				<ul class="list-group">
+					<!-- th:each可以用来循环List和Map等集合类型 -->
+					<li class="list-group-item" th:each="question:${questionList}">
+						<h3>
+							<a class="font-weight-bolder text-dark"
+								th:href="'/questions/'+${question.id}"
+								th:text="${question.title}"> </a>
+						</h3>
+						<div class="text-muted" th:text="${question.content}"></div>
+					</li>
+				</ul>
+				<!-- 分页显示区 -->
+				<nav>
+					<ul class="pagination">
+						<li class="page-item" th:each="page:${pageList}"><a
+							class="page-link" th:text="${page}" th:href="'/?page='+${page}"></a></li>
+					</ul>
+				</nav>
+			</div>
+			<!-- 右边 -->
+			<div class="col-lg-3">
+				<!-- 登录与注册 -->
+				<div th:if="${session.user}==null">
+					<div class="btn-group" role="group">
+						<a href="/authentication/login_register">
+							<button type="button" class="btn btn-primary">登录/注册</button>
+						</a>
+					</div>
+				</div>
+				<!-- 用户信息 -->
+				<div th:if="${session.user}!=null">
+					<div>
+						<a th:href="'/users/'+${session.user.id}"> <span
+							th:text="${session.user.nickname}"></span>
+						</a>
+					</div>
+					<div>
+						<img th:src="'/image/'+${session.user.image}" alt="Image"
+							class="img-rounded" width="100px" height="100px">
+					</div>
+					<div>
+						性别：<span th:text="${session.user.gender}"></span>
+					</div>
+					<div>
+						个人简介：<span th:text="${session.user.profile}"></span>
+					</div>
+					<div>
+						积分：<span th:text="${session.user.score}"></span>
+					</div>
+				</div>
+				<!-- 用户积分排行榜 -->
+				<h3 class="text-center font-weight-bolder">用户积分排行榜</h3>
+				<ul class="list-group">
+					<li class="list-group-item" th:if="${tenMostScoreUserList}!=null"
+						th:each="user:${tenMostScoreUserList}">
+						<div>
+							<img th:src="'/image/'+${user.image}" alt="Image"
+								class="img-rounded" width="30px" height="30px"> <a
+								th:text="${user.nickname}" th:href="'/users/'+${user.id}"
+								class="text-dark"></a>
+						</div>
+						<div th:text="${user.score}" class="font-weight-bold"></div>
+					</li>
+				</ul>
+				<!-- 推荐问题 -->
+				<h3 class="text-center font-weight-bolder">推荐问题</h3>
+				<ul class="list-group">
+					<li class="list-group-item" th:if="${recommendQuestionList}!=null"
+						th:each="recommendQuestion:${recommendQuestionList}">
+						<div>
+							<a th:text="${recommendQuestion.title}"
+								th:href="'/questions/'+${recommendQuestion.id}"
+								class="text-dark font-weight-bolder"></a>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- 右侧空白 -->
+		<div class="col-lg-1"></div>
+	</div>
+</body>
+</html>

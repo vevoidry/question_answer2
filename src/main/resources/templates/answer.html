@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>回复页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	var postAnswer = function() {
+		var question_id=[[${question_id}]];
+		var content=$("#content").val().trim();
+		if(content.length==0){
+			alert("回复内容不可为空");
+			return ;
+		}else{
+			$.ajax({
+				url : "/answers",
+				type : "POST",
+				data : {
+					"question_id" : question_id,
+					"content" : content
+				},
+				dataType : "JSON",
+				async : false,
+				success : function(result) {
+					window.location.href = result.data;
+				},
+				error : function(err) {
+					alert(err.responseJSON.message);
+				}
+			});
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<!-- 回复操作区 -->
+	<div th:if="${answer!=null}">
+		<textarea class="form-control" rows="3" id="content"
+			placeholder="回复内容" th:text="${answer.content}"></textarea>
+	</div>
+	<div th:if="${answer==null}">
+		<textarea class="form-control" rows="3" id="content"
+			placeholder="回复内容"></textarea>
+	</div>
+	<button type="button" class="btn btn-primary" onclick="postAnswer()">回复</button>
+</body>

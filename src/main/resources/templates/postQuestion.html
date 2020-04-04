@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>提问页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	var post = function() {
+		//获取数据并去除两侧空格
+		var category_id = $("#category_id").val().trim();
+		var title = $("#title").val().trim();
+		var content = $("#content").val().trim();
+		var score = $("#score").val().trim();
+		console.log(category_id);
+		console.log(title);
+		console.log(content);
+		console.log(score);
+		//判断是否非空
+		if (category_id.length == 0 || title.length == 0 || content.length == 0
+				|| score.length == 0) {
+			alert("分类，标题，内容，积分均不可为空");
+			return;
+		} else {
+			$.ajax({
+				url : "/questions",
+				type : "POST",
+				data : {
+					"category_id" : category_id,
+					"title" : title,
+					"content" : content,
+					"score" : score
+				},
+				dataType : "JSON",
+				async : false,
+				success : function(result) {
+					window.location.href = result.data;
+				},
+				error : function(err) {
+					alert(err.responseJSON.message);
+				}
+			});
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<!-- 操作区 -->
+	<!-- 分类 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			<select class="form-control" name="category_id" id="category_id">
+				<option th:each="category:${categoryList}" th:value="${category.id}"
+					th:text="${category.name}"></option>
+			</select>
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<!-- 标题 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			标题： <input type="text" name="title" class="form-control" id="title"
+				placeholder="标题">
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<!-- 内容 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			内容： <input type="text" name="content" class="form-control"
+				id="content" placeholder="内容">
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<!-- 积分 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			积分： <input type="text" name="score" class="form-control" id="score"
+				placeholder="输入奖励的积分（正整数）">
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<!-- 提交 -->
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4 text-center">
+			<button type="button" class="btn btn-info" onclick="post()">提交</button>
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+</body>

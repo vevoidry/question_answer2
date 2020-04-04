@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>敏感词管理页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	var postSensitive_words = function() {
+		var word = $("#word_id").val();
+		console.log(word);
+		$.ajax({
+			url : "/sensitive_words",
+			type : "POST",
+			data : {
+				"word" : word
+			},
+			dataType : "JSON",
+			async : false,
+			success : function(result) {
+				window.location.href = result.data;
+			},
+			error : function(err) {
+				alert(err.responseJSON.message);
+			}
+		});
+	}
+
+	var remove = function(id) {
+		var result = confirm("确定删除？");
+		if (result == true) {
+			window.location.href = "/sensitive_words/" + id;
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<!-- 敏感词添加栏 -->
+	<div class="input-group mb-3">
+		<input type="text" id="word_id" class="form-control"
+			placeholder="输入要添加的敏感词" name="word">
+		<div class="input-group-append">
+			<button class="btn btn-primary" type="button"
+				onclick="postSensitive_words()">添加敏感词</button>
+		</div>
+	</div>
+	<!-- 敏感词显示栏 -->
+	<h3 class="text-center font-weight-bolder border-bottom">敏感词</h3>
+	<div th:if="${sensitive_wordList}!=null" class="row">
+		<div class="col-lg-2" th:each="sensitive_word:${sensitive_wordList}">
+			<button type="button" class="btn btn-danger"
+				th:onclick="'remove('+${sensitive_word.id}+')'">移除</button>
+			<span th:text="${sensitive_word.word}"
+				class="border bg-secondary text-white"> </span>
+		</div>
+	</div>
+</body>

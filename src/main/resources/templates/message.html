@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8" />
+<body>
+	<div th:fragment="message_part">
+		<button type="button" class="btn btn-danger" onclick="closee()">收起私信</button>
+		<script type="text/javascript" th:inline="javascript">
+			var closee=function(){
+				console.log(1);
+				$("#display_div").load("/messages/close");
+				console.log(2);
+			}
+			//进行回复
+			var sendMessage=function(){
+				//获取数据
+				var send_user_id=[[${session.user.id}]];
+				var receive_user_id=[[${user.id}]];
+				var content=$("#content").val().trim();
+				if(content.length==0){
+					alert("私信内容不可为空");
+					return ;
+				}else{
+					$.ajax({
+						url : "/messages/send",
+						type : "POST",
+						data : {
+							"send_user_id" : send_user_id,
+							"receive_user_id" : receive_user_id,
+							"content":content
+						},
+						dataType : "JSON",
+						async : false,
+						success : function(result) {
+							$("#display_div").load("/messages/" + [[${user.id}]]);
+						},
+						error : function(err) {
+							alert(err.responseJSON.message);
+						}
+					});
+				}
+			}
+			//基于websocket的私信功能
+			var websocket = null;
+			//浏览器是否支持
+			if ('WebSocket' in window) {
+				// webSocket定位的路径
+				websocket = new WebSocket('ws://localhost:8080/webSocket/'+[[${session.user.id}]]);
+			} else {
+				alert('该浏览器不支持websocket!');
+			}
+			//建立连接
+			websocket.onopen = function(event) {
+				console.log('客户端建立连接');
+			}
+			//关闭连接
+			websocket.onclose = function(event) {
+				console.log('客户端关闭连接');
+			}
+			//消息来的时候的事件
+			websocket.onmessage = function(event) {
+				// 这里event.data就是我们从后台推送过来的消息
+				console.log('客户端接收消息:' + event.data);
+				var data= event.data;
+				console.log(data);
+				var message=$.parseJSON( data );
+				console.log(message);
+				console.log(message.content);
+				console.log(message.create_time);
+				//添加元素
+				$("#messageDiv").append("<div><img src='/image/"+[[${user.image}]]+"' alt='Image' class='img-rounded' width='20px' height='20px'> "
+						+"<span>"+[[${user.nickname}]]+"</span>"
+					+"<div class='text-muted'>"+message.create_time+"</div>"
+					+"<div class='text-body'>"+message.content+"</div></div>");
+			}
+			//发生错误时
+			websocket.onerror = function() {
+				console.log('websocket通信发生错误！');
+			}
+			//窗口关闭时，Websocket关闭
+			window.onbeforeunload = function() {
+				console.log('客户端关闭连接');
+				websocket.close();
+			}
+		</script>
+		<!-- 私信内容 -->
+		<div th:if="${messageList}!=null" class="border" id="messageDiv">
+			<div th:each="message:${messageList}">
+				<!-- 若是登录用户发的 -->
+				<div th:if="${message.send_user_id}==${session.user.id}">
+					<div class="d-flex flex-row-reverse">
+						<img th:src="'/image/'+${session.user.image}" alt="Image"
+							class="img-rounded" width="20px" height="20px"><span
+							th:text="${session.user.nickname}"></span>
+					</div>
+					<div th:text="${#strings.substring(message.create_time,0,19)}"
+						class="d-flex flex-row-reverse text-muted"></div>
+					<div th:text="${message.content}"
+						class="d-flex flex-row-reverse text-body"></div>
+				</div>
+				<!-- 若是私信用户发的 -->
+				<div th:if="${message.send_user_id}==${user.id}">
+					<img th:src="'/image/'+${user.image}" alt="Image"
+						class="img-rounded" width="20px" height="20px"> <span
+						th:text="${user.nickname}"></span>
+					<div class="text-muted"
+						th:text="${#strings.substring(message.create_time,0,19)}"></div>
+					<div class="text-body" th:text="${message.content}"></div>
+				</div>
+			</div>
+		</div>
+		<!-- 回复框 -->
+		<textarea class="form-control" rows="3" id="content"
+			placeholder="回复内容"></textarea>
+		<button type="button" class="btn btn-primary" onclick="sendMessage()">发送</button>
+	</div>
+	<div th:fragment="message_close">
+		<div></div>
+	</div>
+</body>
+</html>

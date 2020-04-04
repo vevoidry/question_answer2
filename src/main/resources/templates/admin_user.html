@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户管理页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	var ban = function(user_id) {
+		var result = confirm("是否禁止？");
+		if (result == true) {
+			window.location.href = "/users/edit/"+user_id;
+		}
+	}
+	var unban = function(user_id) {
+		var result = confirm("是否取消禁止？");
+		if (result == true) {
+			window.location.href = "/users/edit/"+user_id;
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<!-- 用户显示栏 -->
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">用户头像</th>
+				<th scope="col">用户账号</th>
+				<th scope="col">用户昵称</th>
+				<th scope="col">用户角色</th>
+				<th scope="col">用户性别</th>
+				<th scope="col">用户积分</th>
+				<th scope="col">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="user:${userList}">
+				<td><img th:src="'/image/'+${user.image}" height="100px"
+					width="100px" /></td>
+				<td th:text="${user.username}"></td>
+				<td th:text="${user.nickname}"></td>
+				<td>
+					<div th:if="${user.role}=='admin'">管理员</div>
+					<div th:if="${user.role}=='vip'">普通用户</div>
+				</td>
+				<td th:text="${user.gender}"></td>
+				<td th:text="${user.score}"></td>
+				<td>
+					<button th:if="${user.is_using}==true" type="button"
+						class="btn btn-success" th:onclick="'ban('+${user.id}+')'">禁止</button>
+					<button th:if="${user.is_using}==false" type="button"
+						class="btn btn-danger" th:onclick="'unban('+${user.id}+')'">已禁止</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>问题页面</title>
+<!-- Bootstrap核心CSS -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<!-- JQuery -->
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<!-- bootstrap的js -->
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	//关闭问题
+	var closeQuestion = function(id) {
+		var result = confirm("确定关闭问题？");
+		if (result == true) {
+			window.location.href = "/questions/" + id + "/close?on_off=false";
+		}
+	}
+	//开启问题
+	var openQuestion = function(id) {
+		var result = confirm("确定开启问题？");
+		if (result == true) {
+			window.location.href = "/questions/" + id + "/close?on_off=true";
+		}
+	}
+	//删除该提问
+	var deleteQuestion = function(id) {
+		var result = confirm("确定删除？");
+		if (result == true) {
+			window.location.href = "/questions/delete?question_id=" + id;
+		}
+	}
+	//删除回答
+	var deleteAnswer = function(id) {
+		var result = confirm("确认删除？");
+		if (result == true) {
+			window.location.href = "/answers/delete?answer_id=" + id;
+		}
+	}
+	//设为最佳答案
+	var setTop = function(question_id, answer_id) {
+		var result = confirm("确定设为最佳答案？");
+		if (result == true) {
+			window.location.href = "/questions/" + question_id + "/top/"
+					+ answer_id;
+		}
+	}
+	//关注/取关
+	var collection = function(id) {
+		var result = confirm("确定");
+		if (result == true) {
+			window.location.href = "/collections?question_id=" + id;
+		}
+	}
+</script>
+</head>
+<body>
+	<!-- 首页标题 -->
+	<div th:include="template/header::blog_header"></div>
+	<div class="row">
+		<!-- 左侧空白 -->
+		<div class="col-lg-2"></div>
+		<!-- 信息区域 -->
+		<div th:each="questionUser:${questionUserMap}" class="col-lg-8">
+			<!-- 分类 -->
+			<h3>
+				<span>问题分类：</span> <a th:text="${category.name}"
+					th:href="'/categorys/'+${category.id}"></a>
+			</h3>
+			<!-- 提问者 -->
+			<div class="border">
+				<h4 class="font-weight-bolder">提问者</h4>
+				<div>
+					<img th:src="'/image/'+${questionUser.value.image}" alt="Image"
+						class="img-rounded" width="45px" height="45px"> <a
+						th:href="'/users/'+${questionUser.value.id}"
+						th:text="${questionUser.value.nickname}"></a>
+				</div>
+			</div>
+			<!-- 提问 -->
+			<div class="border">
+				<!-- 提问的标题 -->
+				<h3 th:text="${questionUser.key.title}"
+					class="font-weight-bolder text-dark"></h3>
+				<!-- 提问的内容 -->
+				<p class="text-body" th:text="${questionUser.key.content}"></p>
+				<!-- 提问的时间 -->
+				<div class="text-muted"
+					th:text="${#strings.substring(questionUser.key.create_time,0,19)}"></div>
+				<!-- 提问的积分 -->
+				<div class="text-muted" th:text="'奖励积分：'+${questionUser.key.score}"></div>
+			</div>
+			<!-- 提问操作区 -->
+			<div>
+				<!-- 操作：（取消）关注问题 -->
+				<span th:if="!${hasCollection}">
+					<button class="btn btn-primary"
+						th:onclick="'collection('+${questionUser.key.id}+')'">关注问题</button>
+				</span> <span th:if="${hasCollection}">
+					<button class="btn btn-danger"
+						th:onclick="'collection('+${questionUser.key.id}+')'">取消关注问题</button>
+				</span>
+				<!-- 若用户已登录 -->
+				<span th:if="${session.user}!=null"> <!-- 若登录用户是问题的创建者，则有以下权限 -->
+					<span th:if="${session.user.id}==${questionUser.value.id}">
+						<button th:if="${questionUser.key.on_off}" class="btn btn-primary"
+							th:onclick="'closeQuestion('+${questionUser.key.id}+')'">关闭问题</button>
+						<button class="btn btn-primary"
+							th:if="!${questionUser.key.on_off}"
+							th:onclick="'openQuestion('+${questionUser.key.id}+')'">问题已关闭</button>
+						<button class="btn btn-danger"
+							th:onclick="'deleteQuestion('+${questionUser.key.id}+')'">删除该提问</button>
+				</span> <!-- 若登录用户是管理员且不是问题的创建者，则有以下权限 --> <span
+					th:if="${session.user.id}!=${questionUser.value.id}"> <span
+						th:if="${session.user.role}=='admin'">
+							<button th:if="${questionUser.key.on_off}"
+								class="btn btn-warning"
+								th:onclick="'closeQuestion('+${questionUser.key.id}+')'">关闭问题（管理员权限）</button>
+							<button th:if="!${questionUser.key.on_off}"
+								class="btn btn-warning"
+								th:onclick="'openQuestion('+${questionUser.key.id}+')'">问题已关闭（管理员权限）</button>
+							<button class="btn btn-warning"
+								th:onclick="'deleteQuestion('+${questionUser.key.id}+')'">删除该提问（管理员权限）</button>
+					</span>
+				</span>
+				</span>
+			</div>
+			<!-- 置顶回答 -->
+			<div th:each="topAnswerUser:${topAnswerUserMap}">
+				<div th:if="${topAnswerUser}==null">
+					<h4 class="font-weight-bolder">暂无最佳回答</h4>
+				</div>
+				<div th:if="${topAnswerUser}!=null" class="border">
+					<h4 class="font-weight-bolder">最佳回答</h4>
+					<div>
+						<img th:src="'/image/'+${topAnswerUser.value.image}" alt="Image"
+							class="img-rounded" width="30px" height="30px"> <a
+							th:text="${topAnswerUser.value.nickname}"
+							th:href="'/users/'+${topAnswerUser.value.id}"></a>
+					</div>
+					<div th:text="${topAnswerUser.key.content}" class="text-body"></div>
+					<div
+						th:text="${#strings.substring(topAnswerUser.key.create_time,0,19)}"
+						class="text-muted"></div>
+				</div>
+			</div>
+			<!-- 回复显示区 -->
+			<ul class="list-group">
+				<li class="list-group-item" th:each="answerUser:${answerUserMap}">
+					<!-- 回答操作区 -->
+					<div>
+						<!-- 赞同数 -->
+						<span> <a
+							th:href="'/votes?answer_id='+${answerUser.key.id}+'&page='+${page}">
+								<button class="btn btn-primary"
+									th:text="'赞同数'+${answerUser.key.vote_count}"></button>
+						</a>
+						</span>
+						<!-- 删除回答 -->
+							<span th:if="${session.user}!=null">
+								<!-- 如果登录用户是回答者，则可选择删除回答 -->
+								<span th:if="${answerUser.value.id}==${session.user.id}">
+									<button class="btn btn-danger"
+										th:onclick="'deleteAnswer('+${answerUser.key.id}+')'">删除回答</button>
+								</span> 
+								<!-- 如果登录用户不是回答者但是管理员，可以删除回答 --> 
+								<span th:if="${answerUser.value.id}!=${session.user.id}">
+									<button th:if="${session.user.role}=='admin'"
+										class="btn btn-warning"
+										th:onclick="'deleteAnswer('+${answerUser.key.id}+')'">删除回答（管理员权限）</button>
+								</span>
+							</span>
+						 <!-- 设为最佳回答 --> 
+						 	<span th:if="${session.user}!=null">
+								<!-- 若登录用户是问题的创建者，有以下权限 --> 
+								<span th:if="${session.user.id}==${questionUser.value.id}"> 
+									<span th:if="${topAnswerUserMap}==null">
+										<button class="btn btn-primary"
+											th:onclick="'setTop('+${questionUser.key.id}+','+${answerUser.key.id}+')'">设为最佳答案</button>
+									</span>
+								</span> 
+								<!-- 若登录用户不是问题的创建者且是管理员，有以下权限 --> 
+								<span th:if="${questionUser.value.id}!=${session.user.id}"> 
+									<span th:if="${session.user.role}=='admin'"> 
+										<span th:if="${topAnswerUserMap}==null"> 
+											<a th:href="'/questions/'+${questionUser.key.id}+'/top/'+${answerUser.key.id}">
+													<button class="btn btn-warning">设为最佳答案（管理员权限）</button>
+											</a>
+										</span>
+									</span>
+								</span>
+							</span>
+					</div> <!-- 回答显示区 -->
+					<div>
+						<img th:src="'/image/'+${answerUser.value.image}" alt="Image"
+							class="img-rounded" width="30px" height="30px"> <a
+							th:text="${answerUser.value.nickname}"
+							th:href="'/users/'+${answerUser.value.id}"></a>
+					</div>
+					<div th:text="${answerUser.key.content}"></div>
+					<div class="text-muted"
+						th:text="${#strings.substring(answerUser.key.create_time,0,19)}"></div>
+				</li>
+			</ul>
+			<!-- 回复分页区 -->
+			<nav>
+				<ul class="pagination">
+					<li class="page-item" th:each="page:${pageList}"><a
+						class="page-link" th:text="${page}"
+						th:href="'/questions/'+${questionUser.key.id}+'/?page='+${page}"></a></li>
+				</ul>
+			</nav>
+			<!-- 回复操作区 -->
+			<div th:if="!${questionUser.key.on_off}">
+				<span>该问题已被禁止回复</span>
+			</div>
+			<div th:if="${questionUser.key.on_off}">
+				<a th:href="'/answers/'+${questionUser.key.id}"><button
+						class="btn btn-primary">查看回复/进行回复</button></a>
+			</div>
+		</div>
+		<!-- 右侧空白 -->
+		<div class="col-lg-2"></div>
+	</div>
+</body>
